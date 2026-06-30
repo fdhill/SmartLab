@@ -27,4 +27,22 @@ async function store(req, res, next) {
   }
 }
 
-module.exports = { index, show, store };
+async function update(req, res, next) {
+  try {
+    const user = await userService.updateUser(Number(req.params.id), req.body);
+    res.json({ success: true, data: user });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function destroy(req, res, next) {
+  try {
+    await userService.deleteUser(Number(req.params.id));
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { index, show, store, update, destroy };
