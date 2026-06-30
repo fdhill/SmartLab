@@ -1,5 +1,6 @@
 const assistantAssignmentService = require('../services/assistantAssignmentService');
 const assistantAssignmentRepository = require('../repositories/assistantAssignmentRepository');
+const { ok, created, fail } = require('../utils/response');
 
 async function index(req, res, next) {
   try {
@@ -14,10 +15,9 @@ async function index(req, res, next) {
         assignments = await assistantAssignmentService.getAllAssignments();
       }
     } else {
-      // asisten: hanya jadwal piket miliknya sendiri
       assignments = await assistantAssignmentRepository.findByAssistantId(req.assistant.id);
     }
-    res.json({ success: true, data: assignments });
+    ok(res, assignments, 'Assistant assignments retrieved successfully');
   } catch (err) {
     next(err);
   }
@@ -27,9 +27,9 @@ async function show(req, res, next) {
   try {
     const assignment = await assistantAssignmentService.getAssignmentById(Number(req.params.id));
     if (req.user.role === 'assistant' && assignment.assistant_id !== req.assistant.id) {
-      return res.status(403).json({ success: false, message: 'Access denied to this assignment' });
+      return fail(res, 'Access denied to this assignment', 403);
     }
-    res.json({ success: true, data: assignment });
+    ok(res, assignment, 'Assistant assignment retrieved successfully');
   } catch (err) {
     next(err);
   }
@@ -38,7 +38,7 @@ async function show(req, res, next) {
 async function store(req, res, next) {
   try {
     const assignment = await assistantAssignmentService.createAssignment(req.body);
-    res.status(201).json({ success: true, data: assignment });
+    created(res, assignment, 'Assistant assignment created successfully');
   } catch (err) {
     next(err);
   }
@@ -47,7 +47,7 @@ async function store(req, res, next) {
 async function destroy(req, res, next) {
   try {
     await assistantAssignmentService.deleteAssignment(Number(req.params.id));
-    res.json({ success: true, message: 'Assistant assignment deleted successfully' });
+    ok(res, null, 'Assistant assignment deleted successfully');
   } catch (err) {
     next(err);
   }

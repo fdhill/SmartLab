@@ -1,9 +1,10 @@
 const dashboardService = require('../services/dashboardService');
+const { ok } = require('../utils/response');
 
 async function summary(req, res, next) {
   try {
     const data = await dashboardService.getSummary();
-    res.json({ success: true, data });
+    ok(res, data, 'Dashboard summary retrieved successfully');
   } catch (err) {
     next(err);
   }

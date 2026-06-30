@@ -1,9 +1,10 @@
 const courseService = require('../services/courseService');
+const { ok, created } = require('../utils/response');
 
 async function index(req, res, next) {
   try {
     const courses = await courseService.getAllCourses();
-    res.json({ success: true, data: courses });
+    ok(res, courses, 'Courses retrieved successfully');
   } catch (err) {
     next(err);
   }
@@ -12,7 +13,7 @@ async function index(req, res, next) {
 async function show(req, res, next) {
   try {
     const course = await courseService.getCourseById(Number(req.params.id));
-    res.json({ success: true, data: course });
+    ok(res, course, 'Course retrieved successfully');
   } catch (err) {
     next(err);
   }
@@ -21,7 +22,7 @@ async function show(req, res, next) {
 async function store(req, res, next) {
   try {
     const course = await courseService.createCourse(req.body);
-    res.status(201).json({ success: true, data: course });
+    created(res, course, 'Course created successfully');
   } catch (err) {
     next(err);
   }
@@ -30,7 +31,7 @@ async function store(req, res, next) {
 async function update(req, res, next) {
   try {
     const course = await courseService.updateCourse(Number(req.params.id), req.body);
-    res.json({ success: true, data: course });
+    ok(res, course, 'Course updated successfully');
   } catch (err) {
     next(err);
   }
@@ -39,7 +40,7 @@ async function update(req, res, next) {
 async function destroy(req, res, next) {
   try {
     await courseService.deleteCourse(Number(req.params.id));
-    res.json({ success: true, message: 'Course deleted successfully' });
+    ok(res, null, 'Course deleted successfully');
   } catch (err) {
     next(err);
   }

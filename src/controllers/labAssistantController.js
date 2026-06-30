@@ -1,9 +1,10 @@
 const labAssistantService = require('../services/labAssistantService');
+const { ok, created } = require('../utils/response');
 
 async function index(req, res, next) {
   try {
     const assistants = await labAssistantService.getAllAssistants();
-    res.json({ success: true, data: assistants });
+    ok(res, assistants, 'Lab assistants retrieved successfully');
   } catch (err) {
     next(err);
   }
@@ -12,7 +13,7 @@ async function index(req, res, next) {
 async function show(req, res, next) {
   try {
     const assistant = await labAssistantService.getAssistantById(Number(req.params.id));
-    res.json({ success: true, data: assistant });
+    ok(res, assistant, 'Lab assistant retrieved successfully');
   } catch (err) {
     next(err);
   }
@@ -21,7 +22,7 @@ async function show(req, res, next) {
 async function store(req, res, next) {
   try {
     const assistant = await labAssistantService.createAssistant(req.body);
-    res.status(201).json({ success: true, data: assistant });
+    created(res, assistant, 'Lab assistant created successfully');
   } catch (err) {
     next(err);
   }
@@ -30,7 +31,7 @@ async function store(req, res, next) {
 async function update(req, res, next) {
   try {
     const assistant = await labAssistantService.updateAssistant(Number(req.params.id), req.body);
-    res.json({ success: true, data: assistant });
+    ok(res, assistant, 'Lab assistant updated successfully');
   } catch (err) {
     next(err);
   }
@@ -39,7 +40,7 @@ async function update(req, res, next) {
 async function destroy(req, res, next) {
   try {
     await labAssistantService.deleteAssistant(Number(req.params.id));
-    res.json({ success: true, message: 'Lab assistant deleted successfully' });
+    ok(res, null, 'Lab assistant deleted successfully');
   } catch (err) {
     next(err);
   }

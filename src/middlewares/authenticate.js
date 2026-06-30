@@ -1,10 +1,11 @@
 const { verify } = require('../config/jwt');
+const { fail } = require('../utils/response');
 
 function authenticate(req, res, next) {
   const authHeader = req.headers['authorization'];
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ success: false, message: 'Access token is missing' });
+    return fail(res, 'Access token is missing', 401);
   }
 
   const token = authHeader.slice(7);
@@ -15,14 +16,14 @@ function authenticate(req, res, next) {
     next();
   } catch (err) {
     const message = err.name === 'TokenExpiredError' ? 'Token has expired' : 'Token is invalid';
-    return res.status(401).json({ success: false, message });
+    return fail(res, message, 401);
   }
 }
 
 function authorize(...roles) {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ success: false, message: 'You do not have permission to access this resource' });
+      return fail(res, 'You do not have permission to access this resource', 403);
     }
     next();
   };

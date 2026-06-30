@@ -1,9 +1,10 @@
 const userService = require('../services/userService');
+const { ok, created, fail } = require('../utils/response');
 
 async function index(req, res, next) {
   try {
     const users = await userService.getAllUsers();
-    res.json({ success: true, data: users });
+    ok(res, users, 'Users retrieved successfully');
   } catch (err) {
     next(err);
   }
@@ -12,7 +13,7 @@ async function index(req, res, next) {
 async function show(req, res, next) {
   try {
     const user = await userService.getUserById(Number(req.params.id));
-    res.json({ success: true, data: user });
+    ok(res, user, 'User retrieved successfully');
   } catch (err) {
     next(err);
   }
@@ -21,7 +22,7 @@ async function show(req, res, next) {
 async function store(req, res, next) {
   try {
     const user = await userService.createUser(req.body);
-    res.status(201).json({ success: true, data: user });
+    created(res, user, 'User created successfully');
   } catch (err) {
     next(err);
   }
@@ -30,7 +31,7 @@ async function store(req, res, next) {
 async function update(req, res, next) {
   try {
     const user = await userService.updateUser(Number(req.params.id), req.body);
-    res.json({ success: true, data: user });
+    ok(res, user, 'User updated successfully');
   } catch (err) {
     next(err);
   }
@@ -39,7 +40,7 @@ async function update(req, res, next) {
 async function destroy(req, res, next) {
   try {
     await userService.deleteUser(Number(req.params.id));
-    res.json({ success: true, message: 'User deleted successfully' });
+    ok(res, null, 'User deleted successfully');
   } catch (err) {
     next(err);
   }

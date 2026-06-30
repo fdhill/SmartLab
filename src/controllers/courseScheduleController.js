@@ -1,5 +1,6 @@
 const courseScheduleService = require('../services/courseScheduleService');
 const courseScheduleRepository = require('../repositories/courseScheduleRepository');
+const { ok, created, fail } = require('../utils/response');
 
 async function index(req, res, next) {
   try {
@@ -14,10 +15,9 @@ async function index(req, res, next) {
         schedules = await courseScheduleService.getAllSchedules();
       }
     } else {
-      // asisten: hanya jadwal pada lab yang ditugaskan
       schedules = await courseScheduleRepository.findByLabIds(req.assignedLabIds);
     }
-    res.json({ success: true, data: schedules });
+    ok(res, schedules, 'Course schedules retrieved successfully');
   } catch (err) {
     next(err);
   }
@@ -27,9 +27,9 @@ async function show(req, res, next) {
   try {
     const schedule = await courseScheduleService.getScheduleById(Number(req.params.id));
     if (req.user.role === 'assistant' && !req.assignedLabIds.includes(schedule.lab_id)) {
-      return res.status(403).json({ success: false, message: 'Access denied to this schedule' });
+      return fail(res, 'Access denied to this schedule', 403);
     }
-    res.json({ success: true, data: schedule });
+    ok(res, schedule, 'Course schedule retrieved successfully');
   } catch (err) {
     next(err);
   }
@@ -38,7 +38,7 @@ async function show(req, res, next) {
 async function store(req, res, next) {
   try {
     const schedule = await courseScheduleService.createSchedule(req.body);
-    res.status(201).json({ success: true, data: schedule });
+    created(res, schedule, 'Course schedule created successfully');
   } catch (err) {
     next(err);
   }
@@ -47,7 +47,7 @@ async function store(req, res, next) {
 async function update(req, res, next) {
   try {
     const schedule = await courseScheduleService.updateSchedule(Number(req.params.id), req.body);
-    res.json({ success: true, data: schedule });
+    ok(res, schedule, 'Course schedule updated successfully');
   } catch (err) {
     next(err);
   }
@@ -56,7 +56,7 @@ async function update(req, res, next) {
 async function destroy(req, res, next) {
   try {
     await courseScheduleService.deleteSchedule(Number(req.params.id));
-    res.json({ success: true, message: 'Course schedule deleted successfully' });
+    ok(res, null, 'Course schedule deleted successfully');
   } catch (err) {
     next(err);
   }

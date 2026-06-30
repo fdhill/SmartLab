@@ -9,6 +9,7 @@ function errorHandler(err, req, res, next) {
   res.status(status).json({
     success: false,
     message,
+    data: null,
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
   });
 }
