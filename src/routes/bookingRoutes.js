@@ -1,12 +1,21 @@
 const { Router } = require('express');
 const bookingController = require('../controllers/bookingController');
+const { authorize } = require('../middlewares/authenticate');
+const { resolveAssistant } = require('../middlewares/resolveAssistant');
 
 const router = Router();
 
-router.get('/', bookingController.index);
-router.get('/:id', bookingController.show);
+// GET: admin semua booking, asisten hanya lab yang dijaga
+router.get('/', resolveAssistant, bookingController.index);
+router.get('/:id', resolveAssistant, bookingController.show);
+
+// POST: semua role boleh mengajukan booking
 router.post('/', bookingController.store);
-router.patch('/:id/status', bookingController.updateStatus);
-router.delete('/:id', bookingController.destroy);
+
+// PATCH status: admin only (persetujuan peminjaman)
+router.patch('/:id/status', authorize('admin'), bookingController.updateStatus);
+
+// DELETE: admin only
+router.delete('/:id', authorize('admin'), bookingController.destroy);
 
 module.exports = router;

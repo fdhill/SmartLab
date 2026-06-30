@@ -1,11 +1,16 @@
 const { Router } = require('express');
 const assistantAssignmentController = require('../controllers/assistantAssignmentController');
+const { authorize } = require('../middlewares/authenticate');
+const { resolveAssistant } = require('../middlewares/resolveAssistant');
 
 const router = Router();
 
-router.get('/', assistantAssignmentController.index);
-router.get('/:id', assistantAssignmentController.show);
-router.post('/', assistantAssignmentController.store);
-router.delete('/:id', assistantAssignmentController.destroy);
+// GET: admin semua penugasan, asisten hanya jadwal piket sendiri
+router.get('/', resolveAssistant, assistantAssignmentController.index);
+router.get('/:id', resolveAssistant, assistantAssignmentController.show);
+
+// CUD: admin only (penugasan piket)
+router.post('/', authorize('admin'), assistantAssignmentController.store);
+router.delete('/:id', authorize('admin'), assistantAssignmentController.destroy);
 
 module.exports = router;

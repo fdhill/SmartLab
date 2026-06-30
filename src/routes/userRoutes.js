@@ -1,12 +1,14 @@
 const { Router } = require('express');
 const userController = require('../controllers/userController');
+const { authorize } = require('../middlewares/authenticate');
 
 const router = Router();
 
-router.get('/', userController.index);
-router.get('/:id', userController.show);
-router.post('/', userController.store);
-router.put('/:id', userController.update);
-router.delete('/:id', userController.destroy);
+// admin only — kelola semua akun
+router.get('/', authorize('admin'), userController.index);
+router.get('/:id', authorize('admin'), userController.show);
+router.post('/', authorize('admin'), userController.store);
+router.put('/:id', authorize('admin'), userController.update);
+router.delete('/:id', authorize('admin'), userController.destroy);
 
 module.exports = router;

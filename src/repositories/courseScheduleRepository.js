@@ -26,6 +26,13 @@ async function findByDay(day) {
   return rows.map((row) => new CourseSchedule(row));
 }
 
+async function findByLabIds(labIds) {
+  if (!labIds.length) return [];
+  const placeholders = labIds.map(() => '?').join(', ');
+  const [rows] = await pool.query(`SELECT * FROM course_schedules WHERE lab_id IN (${placeholders})`, labIds);
+  return rows.map((row) => new CourseSchedule(row));
+}
+
 async function create({ lab_id, course_id, lecturer_id, day, start_time, end_time, class: className, semester }) {
   const [result] = await pool.query(
     'INSERT INTO course_schedules (lab_id, course_id, lecturer_id, day, start_time, end_time, class, semester) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -47,4 +54,4 @@ async function remove(id) {
   return result.affectedRows > 0;
 }
 
-module.exports = { findAll, findById, findByLabId, findByLecturerId, findByDay, create, update, remove };
+module.exports = { findAll, findById, findByLabId, findByLabIds, findByLecturerId, findByDay, create, update, remove };

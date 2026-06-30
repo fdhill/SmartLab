@@ -26,6 +26,13 @@ async function findByStatus(status) {
   return rows.map((row) => new Booking(row));
 }
 
+async function findByLabIds(labIds) {
+  if (!labIds.length) return [];
+  const placeholders = labIds.map(() => '?').join(', ');
+  const [rows] = await pool.query(`SELECT * FROM bookings WHERE lab_id IN (${placeholders})`, labIds);
+  return rows.map((row) => new Booking(row));
+}
+
 async function create({ lab_id, user_id, date, start_time, end_time, activity_type, purpose }) {
   const [result] = await pool.query(
     'INSERT INTO bookings (lab_id, user_id, date, start_time, end_time, activity_type, purpose, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -44,4 +51,4 @@ async function remove(id) {
   return result.affectedRows > 0;
 }
 
-module.exports = { findAll, findById, findByUserId, findByLabId, findByStatus, create, updateStatus, remove };
+module.exports = { findAll, findById, findByUserId, findByLabId, findByLabIds, findByStatus, create, updateStatus, remove };

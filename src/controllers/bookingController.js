@@ -1,15 +1,21 @@
 const bookingService = require('../services/bookingService');
+const bookingRepository = require('../repositories/bookingRepository');
 
 async function index(req, res, next) {
   try {
-    const { user_id, status } = req.query;
     let bookings;
-    if (user_id) {
-      bookings = await bookingService.getBookingsByUser(Number(user_id));
-    } else if (status) {
-      bookings = await bookingService.getBookingsByStatus(status);
+    if (req.user.role === 'admin') {
+      const { user_id, status } = req.query;
+      if (user_id) {
+        bookings = await bookingService.getBookingsByUser(Number(user_id));
+      } else if (status) {
+        bookings = await bookingService.getBookingsByStatus(status);
+      } else {
+        bookings = await bookingService.getAllBookings();
+      }
     } else {
-      bookings = await bookingService.getAllBookings();
+      // asisten: hanya booking pada lab yang ditugaskan (read-only)
+      bookings = await bookingRepository.findByLabIds(req.assignedLabIds);
     }
     res.json({ success: true, data: bookings });
   } catch (err) {
@@ -20,6 +26,9 @@ async function index(req, res, next) {
 async function show(req, res, next) {
   try {
     const booking = await bookingService.getBookingById(Number(req.params.id));
+    if (req.user.role === 'assistant' && !req.assignedLabIds.includes(booking.lab_id)) {
+      return res.status(403).json({ success: false, message: 'Access denied to this booking' });
+    }
     res.json({ success: true, data: booking });
   } catch (err) {
     next(err);

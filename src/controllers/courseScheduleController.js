@@ -1,15 +1,21 @@
 const courseScheduleService = require('../services/courseScheduleService');
+const courseScheduleRepository = require('../repositories/courseScheduleRepository');
 
 async function index(req, res, next) {
   try {
-    const { lab_id, day } = req.query;
     let schedules;
-    if (lab_id) {
-      schedules = await courseScheduleService.getSchedulesByLab(Number(lab_id));
-    } else if (day) {
-      schedules = await courseScheduleService.getSchedulesByDay(day);
+    if (req.user.role === 'admin') {
+      const { lab_id, day } = req.query;
+      if (lab_id) {
+        schedules = await courseScheduleService.getSchedulesByLab(Number(lab_id));
+      } else if (day) {
+        schedules = await courseScheduleService.getSchedulesByDay(day);
+      } else {
+        schedules = await courseScheduleService.getAllSchedules();
+      }
     } else {
-      schedules = await courseScheduleService.getAllSchedules();
+      // asisten: hanya jadwal pada lab yang ditugaskan
+      schedules = await courseScheduleRepository.findByLabIds(req.assignedLabIds);
     }
     res.json({ success: true, data: schedules });
   } catch (err) {
@@ -20,6 +26,9 @@ async function index(req, res, next) {
 async function show(req, res, next) {
   try {
     const schedule = await courseScheduleService.getScheduleById(Number(req.params.id));
+    if (req.user.role === 'assistant' && !req.assignedLabIds.includes(schedule.lab_id)) {
+      return res.status(403).json({ success: false, message: 'Access denied to this schedule' });
+    }
     res.json({ success: true, data: schedule });
   } catch (err) {
     next(err);

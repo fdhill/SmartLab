@@ -1,5 +1,8 @@
+const bcrypt = require('bcryptjs');
 const userRepository = require('../repositories/userRepository');
 const User = require('../models/User');
+
+const SALT_ROUNDS = 10;
 
 function assertFound(user, id) {
   if (!user) {
@@ -39,7 +42,8 @@ async function createUser({ name, email, password, role, phone_number }) {
     throw err;
   }
 
-  return userRepository.create({ name, email, password, role, phone_number });
+  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+  return userRepository.create({ name, email, password: hashedPassword, role, phone_number });
 }
 
 async function updateUser(id, { name, email, password, role, phone_number }) {
@@ -61,10 +65,11 @@ async function updateUser(id, { name, email, password, role, phone_number }) {
     }
   }
 
+  const hashedPassword = password ? await bcrypt.hash(password, SALT_ROUNDS) : user.password;
   return userRepository.update(id, {
     name: name ?? user.name,
     email: email ?? user.email,
-    password: password ?? user.password,
+    password: hashedPassword,
     role: role ?? user.role,
     phone_number: phone_number ?? user.phone_number,
   });
