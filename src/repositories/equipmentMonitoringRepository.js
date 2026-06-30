@@ -29,7 +29,7 @@ async function findByAssistantId(assistant_id) {
 
 async function create({ equipment_id, assistant_id, check_date, condition, notes }) {
   const [result] = await pool.query(
-    'INSERT INTO equipment_monitoring (equipment_id, assistant_id, check_date, condition, notes) VALUES (?, ?, ?, ?, ?)',
+    'INSERT INTO equipment_monitoring (equipment_id, assistant_id, check_date, `condition`, notes) VALUES (?, ?, ?, ?, ?)',
     [equipment_id, assistant_id, check_date, condition, notes ?? null]
   );
   return findById(result.insertId);

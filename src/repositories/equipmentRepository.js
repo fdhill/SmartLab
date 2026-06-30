@@ -30,7 +30,7 @@ async function findByLabIds(labIds) {
 
 async function create({ lab_id, name, code, quantity, condition }) {
   const [result] = await pool.query(
-    'INSERT INTO equipment (lab_id, name, code, quantity, condition) VALUES (?, ?, ?, ?, ?)',
+    'INSERT INTO equipment (lab_id, name, code, quantity, `condition`) VALUES (?, ?, ?, ?, ?)',
     [lab_id, name, code, quantity ?? 1, condition ?? Equipment.CONDITION.GOOD]
   );
   return findById(result.insertId);
@@ -38,7 +38,7 @@ async function create({ lab_id, name, code, quantity, condition }) {
 
 async function update(id, { lab_id, name, code, quantity, condition }) {
   await pool.query(
-    'UPDATE equipment SET lab_id = ?, name = ?, code = ?, quantity = ?, condition = ? WHERE id = ?',
+    'UPDATE equipment SET lab_id = ?, name = ?, code = ?, quantity = ?, `condition` = ? WHERE id = ?',
     [lab_id, name, code, quantity, condition, id]
   );
   return findById(id);
